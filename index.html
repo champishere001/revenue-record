@@ -3,722 +3,833 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Jamabandi + Rules → SQLite DB (GitHub Pages)</title>
+  <title>Jamabandi + Rules → SQLite DB (Browser)</title>
 
-  <!-- pdf.js -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.js"></script>
+  <!-- PDF.js -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+
   <!-- sql.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
 
   <style>
     :root{
-      --bg:#0b1220; --card:#0f1b33; --border:#223458;
-      --text:#e9eefc; --muted:#9fb0d0; --accent:#4cc9f0;
+      --bg:#060b16; --panel:#0b1327; --card:#0f1b33; --card2:#0d172c;
+      --border:#223458; --text:#e9eefc; --muted:#9fb0d0; --accent:#4cc9f0;
+      --good:#27c58b; --warn:#ffcc66; --bad:#ff6b8b;
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
-    .top{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap}
-    h1{margin:0;font-size:20px}
-    h2{margin:0 0 10px 0;font-size:16px}
-    p{margin:6px 0}
-    .muted{color:var(--muted)}
-    .small{font-size:12px}
-    .actions button{margin-left:8px}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px;padding:12px;max-width:1100px;margin:0 auto}
-    @media(min-width:980px){.grid{grid-template-columns:1fr 1.2fr}}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px}
-    .row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
-    input,textarea,select{
-      width:100%;padding:10px;border-radius:12px;border:1px solid var(--border);
-      background:#0b162c;color:var(--text);outline:none
+    a{color:var(--accent);text-decoration:none}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .top{
+      display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px
     }
-    button{
-      padding:10px 12px;border-radius:12px;border:1px solid var(--border);
-      background:#0b162c;color:var(--text);cursor:pointer
+    h1{font-size:18px;margin:0}
+    .sub{color:var(--muted);font-size:13px;margin-top:4px}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:960px){ .row{grid-template-columns:1.1fr .9fr} }
+    .card{
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--border); border-radius:14px; padding:14px;
+      box-shadow:0 18px 70px rgba(0,0,0,.35);
     }
-    button:hover{border-color:var(--accent)}
-    button:disabled{opacity:.55;cursor:not-allowed}
-    .status{margin-top:10px;font-size:13px}
-    .results{
-      margin-top:12px;max-height:420px;overflow:auto;border:1px solid var(--border);
-      border-radius:12px;padding:10px;background:#081226
+    .card h2{font-size:15px;margin:0 0 10px}
+    .line{height:1px;background:rgba(255,255,255,.06);margin:12px 0}
+    .btn{
+      background:#122448;border:1px solid var(--border); color:var(--text);
+      padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:700;
     }
-    .resultItem{padding:8px;border-bottom:1px dashed #1c2e4f;white-space:pre-wrap}
-    .resultItem:last-child{border-bottom:none}
-    .tabs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-    .tab{padding:8px 10px;border-radius:999px}
-    .tab.active{border-color:var(--accent)}
-    .tabpane{display:none;margin-top:10px}
-    .tabpane.active{display:block}
-    .chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
-    .foot{padding:12px;text-align:center}
+    .btn:hover{border-color:rgba(76,201,240,.65)}
+    .btn.primary{background:rgba(76,201,240,.12);border-color:rgba(76,201,240,.55)}
+    .btn.danger{background:rgba(255,107,139,.08);border-color:rgba(255,107,139,.45)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
     .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:#0b162c;color:var(--muted);
-      font-size:12px
+      font-size:12px;color:var(--muted);padding:6px 10px;border:1px solid rgba(255,255,255,.12);
+      border-radius:999px; display:inline-flex;gap:8px;align-items:center
     }
-    .half{flex:1;min-width:240px}
+    .grid2{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:700px){ .grid2{grid-template-columns:1fr 1fr} }
+    .field label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+    input[type="text"], textarea, select{
+      width:100%; background:#071127; border:1px solid var(--border); color:var(--text);
+      border-radius:12px; padding:10px 12px; outline:none;
+    }
+    textarea{min-height:140px;resize:vertical}
+    .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    @media(min-width:700px){.kpi{grid-template-columns:repeat(4,1fr)}}
+    .kpi .box{background:#071127;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px}
+    .kpi .t{color:var(--muted);font-size:12px}
+    .kpi .v{font-size:18px;font-weight:900;margin-top:4px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .tab{padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);cursor:pointer}
+    .tab.active{border-color:rgba(76,201,240,.65);background:rgba(76,201,240,.10)}
+    .out{
+      background:#061024;border:1px solid rgba(255,255,255,.10);border-radius:14px;
+      padding:12px;white-space:pre-wrap; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px; min-height:140px; overflow:auto
+    }
+    .mini{font-size:12px;color:var(--muted)}
+    .checks{display:flex;gap:10px;flex-wrap:wrap}
+    .chk{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+    .rightTop{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   </style>
 </head>
 
 <body>
-  <header class="top">
-    <div>
-      <h1>Jamabandi + Rules → SQLite DB (Browser)</h1>
-      <p class="muted">Load Rule PDF from GitHub → Upload Jamabandi → Query → Download .db</p>
-      <div class="pill" id="dbState">DB: loading…</div>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Jamabandi + Rules → SQLite DB (Browser)</h1>
+        <div class="sub">
+          Load Rule PDF from GitHub → Upload Jamabandi → Import → Query → Download .db
+        </div>
+      </div>
+      <div class="rightTop">
+        <span class="pill" id="dbStatus">DB: loading...</span>
+        <button class="btn danger" id="newDbBtn" disabled>New DB</button>
+        <button class="btn" id="downloadDbBtn" disabled>Download DB</button>
+      </div>
     </div>
-    <div class="actions">
-      <button id="btnNewDb">New DB</button>
-      <button id="btnDownloadDb" disabled>Download DB</button>
+
+    <div class="row">
+      <div class="card">
+        <h2>1) Load Rule PDF from GitHub (Fixed)</h2>
+        <div class="mini">
+          This uses a fixed URL (GitHub Pages cannot list folders). Put your rule PDF at:
+          <b>/rules/jamabandi.pdf</b>
+        </div>
+        <div class="line"></div>
+        <div class="grid2">
+          <div class="field">
+            <label>Rule PDF URL (auto)</label>
+            <input id="ruleUrl" type="text" />
+          </div>
+          <div class="field" style="display:flex;align-items:end;gap:10px">
+            <button class="btn primary" id="loadRuleBtn" disabled>Load Rule PDF</button>
+            <span class="pill" id="rulePill">Rules: not loaded</span>
+          </div>
+        </div>
+
+        <div class="line"></div>
+
+        <h2>2) Upload Jamabandi PDF</h2>
+        <div class="grid2">
+          <div class="field">
+            <label>Select Jamabandi PDF</label>
+            <input id="jamFile" type="file" accept="application/pdf" />
+          </div>
+          <div class="field" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap">
+            <button class="btn primary" id="importJamBtn" disabled>Import Jamabandi into DB</button>
+            <span class="pill" id="jamPill">Jamabandi: not imported</span>
+          </div>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="checks">
+          <label class="chk"><input type="checkbox" id="hindiMode" checked /> Hindi Mode (Jamabandi)</label>
+          <label class="chk"><input type="checkbox" id="detectHeadings" checked /> Detect headings</label>
+          <label class="chk"><input type="checkbox" id="extractKhasraOwners" checked /> Extract khasra/owners</label>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="kpi">
+          <div class="box"><div class="t">Rules lines</div><div class="v" id="kpiRules">0</div></div>
+          <div class="box"><div class="t">Jamabandi lines</div><div class="v" id="kpiJam">0</div></div>
+          <div class="box"><div class="t">Owners found</div><div class="v" id="kpiOwners">0</div></div>
+          <div class="box"><div class="t">Khasra found</div><div class="v" id="kpiKhasra">0</div></div>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="mini">
+          Note: GitHub file preview may show “Unable to render code block” for PDFs — that is normal.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>3) Fetch / Query Logic</h2>
+        <div class="tabs">
+          <button class="tab active" data-tab="heading">By Heading</button>
+          <button class="tab" data-tab="owner">By Owner</button>
+          <button class="tab" data-tab="khasra">By Khasra</button>
+          <button class="tab" data-tab="sql">SQL</button>
+        </div>
+
+        <div id="panel-heading">
+          <div class="field">
+            <label>Heading key (e.g., जमाबंदी / खसरा / मालिक / 121)</label>
+            <input id="qHeading" type="text" placeholder="Type a keyword..." />
+          </div>
+        </div>
+
+        <div id="panel-owner" style="display:none">
+          <div class="field">
+            <label>Owner name keyword (Hindi/English)</label>
+            <input id="qOwner" type="text" placeholder="e.g., Narender / नरेन्द्र" />
+          </div>
+        </div>
+
+        <div id="panel-khasra" style="display:none">
+          <div class="field">
+            <label>Khasra number (exact or partial)</label>
+            <input id="qKhasra" type="text" placeholder="e.g., 1825" />
+          </div>
+        </div>
+
+        <div id="panel-sql" style="display:none">
+          <div class="field">
+            <label>SQL Query</label>
+            <textarea id="qSql" spellcheck="false">SELECT 'rules' AS table_name, COUNT(*) AS rows FROM rules
+UNION ALL
+SELECT 'jamabandi_lines', COUNT(*) FROM jamabandi_lines
+UNION ALL
+SELECT 'owners', COUNT(*) FROM owners
+UNION ALL
+SELECT 'khasra_refs', COUNT(*) FROM khasra_refs;</textarea>
+          </div>
+          <div class="mini">
+            Tables: <b>rules</b>, <b>jamabandi_lines</b>, <b>owners</b>, <b>khasra_refs</b>, <b>meta</b>
+          </div>
+        </div>
+
+        <div class="line"></div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn primary" id="fetchBtn" disabled>Fetch</button>
+          <button class="btn" id="clearOutBtn">Clear</button>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="out" id="output">No DB loaded yet.</div>
+
+        <div class="line"></div>
+
+        <h2>DB Summary</h2>
+        <div class="out" id="summary" style="min-height:90px">No DB loaded yet.</div>
+      </div>
     </div>
-  </header>
 
-  <main class="grid">
-    <section class="card">
-      <h2>1) Load Rule PDF from GitHub (Option 2)</h2>
-      <div class="row">
-        <div class="half">
-          <label class="muted small">Select rule PDF (from /rules/ folder in your repo)</label>
-          <select id="ruleSelect"></select>
-        </div>
-        <div>
-          <button id="btnLoadRule">Load Rule PDF</button>
-        </div>
-      </div>
-      <div id="ruleStatus" class="status muted"></div>
-
-      <hr style="border:0;border-top:1px solid var(--border);margin:14px 0">
-
-      <h2>2) Upload Jamabandi PDF</h2>
-      <input type="file" id="filePdf" accept="application/pdf" />
-
-      <div class="row">
-        <label class="chk"><input type="checkbox" id="chkHindiMode" checked /> Hindi Mode (Jamabandi)</label>
-        <label class="chk"><input type="checkbox" id="chkDetectHeadings" checked /> Detect headings</label>
-        <label class="chk"><input type="checkbox" id="chkExtractEntities" checked /> Extract khasra/owners</label>
-      </div>
-
-      <button id="btnImport" disabled>Import Jamabandi into DB</button>
-      <div id="importStatus" class="status muted"></div>
-    </section>
-
-    <section class="card">
-      <h2>3) Fetch / Query Logic</h2>
-
-      <div class="tabs">
-        <button class="tab active" data-tab="tabHeading">By Heading</button>
-        <button class="tab" data-tab="tabOwner">By Owner</button>
-        <button class="tab" data-tab="tabKhasra">By Khasra</button>
-        <button class="tab" data-tab="tabSQL">SQL</button>
-      </div>
-
-      <div id="tabHeading" class="tabpane active">
-        <div class="row">
-          <input id="headingKey" placeholder="Heading key (e.g., जमाबंदी / खसरा / मालिक / 121)" />
-          <button id="btnGetHeading">Fetch</button>
-        </div>
-        <p class="muted small">You can query both Rule PDF + Jamabandi after importing.</p>
-      </div>
-
-      <div id="tabOwner" class="tabpane">
-        <div class="row">
-          <input id="ownerName" placeholder="Owner name (e.g., Narender / नरेंद्र / कुलविंदर)" />
-          <button id="btnOwner">Search</button>
-        </div>
-      </div>
-
-      <div id="tabKhasra" class="tabpane">
-        <div class="row">
-          <input id="khasraNo" placeholder="Khasra no (e.g., 1825)" />
-          <button id="btnKhasra">Search</button>
-        </div>
-      </div>
-
-      <div id="tabSQL" class="tabpane">
-        <textarea id="sqlBox" rows="7">SELECT * FROM documents;</textarea>
-        <div class="row">
-          <button id="btnRunSQL">Run SQL</button>
-        </div>
-        <p class="muted small">Tables: documents, sections, content, entities, ownership</p>
-      </div>
-
-      <div id="results" class="results"></div>
-    </section>
-
-    <section class="card">
-      <h2>DB Summary</h2>
-      <div id="summary" class="muted">No DB loaded yet.</div>
-    </section>
-  </main>
-
-  <footer class="foot muted">
-    GitHub Pages = static. Rule PDFs load via fetch() from your repo.
-  </footer>
+    <div class="sub" style="margin-top:12px">
+      GitHub Pages = static. Rule PDFs load via <code>fetch()</code> from your repo (raw.githubusercontent.com).
+    </div>
+  </div>
 
 <script>
-/* global initSqlJs, pdfjsLib */
+/* =========================
+   CONFIG (EDIT ONLY THIS)
+========================= */
+// Your repo + file path (fixed)
+const GITHUB_USER = "champishere001";
+const REPO_NAME = "revenue-record";
+const BRANCH = "main";
+const RULE_PDF_PATH = "rules/jamabandi.pdf";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.js";
+// Fixed RAW URL (best for PDF fetch on Pages)
+const RULE_PDF_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${REPO_NAME}/${BRANCH}/${RULE_PDF_PATH}`;
 
+/* =========================
+   GLOBALS
+========================= */
 let SQL = null;
 let db = null;
-let importedDocId = null;
+let ruleLoaded = false;
+let jamLoaded = false;
 
+// pdf.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+
+/* =========================
+   UI Helpers
+========================= */
 const $ = (id)=>document.getElementById(id);
-
-const filePdf = $("filePdf");
-const btnImport = $("btnImport");
-const statusBox = $("importStatus");
-const ruleStatus = $("ruleStatus");
-const resultsBox = $("results");
-const summaryBox = $("summary");
-const btnDownloadDb = $("btnDownloadDb");
-const dbState = $("dbState");
-const ruleSelect = $("ruleSelect");
-
-/** ✅ EDIT THIS LIST to match your repo PDFs */
-const RULE_PDFS = [
-  {label: "Registration Rules (example)", path: "registration_rules.pdf"},
-  {label: "Stamp Rules (example)", path: "rules/stamp_rules.pdf"},
-  {label: "Land Manual (example)", path: "rules/land_manual.pdf"},
-];
-
-function setDbState(msg){ dbState.textContent = "DB: " + msg; }
-
-function logStatus(msg){ statusBox.textContent = msg; }
-function logRule(msg){ ruleStatus.textContent = msg; }
-
-function showResults(rows){
-  resultsBox.innerHTML = "";
-  if (!rows || rows.length === 0){
-    resultsBox.innerHTML = `<div class="muted">No results.</div>`;
-    return;
+function setStatus(text, ok=null){
+  const el = $("dbStatus");
+  el.textContent = text;
+  el.style.borderColor = ok===true ? "rgba(39,197,139,.6)" : ok===false ? "rgba(255,107,139,.6)" : "rgba(255,255,255,.12)";
+}
+function pill(el, text, ok=null){
+  el.textContent = text;
+  el.style.borderColor = ok===true ? "rgba(39,197,139,.6)" : ok===false ? "rgba(255,107,139,.6)" : "rgba(255,255,255,.12)";
+}
+function outPrint(str){
+  const o = $("output");
+  o.textContent = (o.textContent && o.textContent !== "No DB loaded yet.") ? (o.textContent + "\n\n" + str) : str;
+}
+function outSet(str){ $("output").textContent = str; }
+function summarySet(str){ $("summary").textContent = str; }
+function fmtRows(rows){
+  if(!rows || !rows.length) return "(no rows)";
+  const keys = Object.keys(rows[0]);
+  const lines = [];
+  lines.push(keys.join(" | "));
+  lines.push(keys.map(()=> "---").join(" | "));
+  for(const r of rows){
+    lines.push(keys.map(k => String(r[k] ?? "")).join(" | "));
   }
-  rows.forEach(r=>{
-    const div = document.createElement("div");
-    div.className = "resultItem";
-    div.textContent = (typeof r === "string") ? r : JSON.stringify(r, null, 2);
-    resultsBox.appendChild(div);
-  });
+  return lines.join("\n");
 }
 
-function normalizeKey(s){
-  return (s||"").toString().trim().replace(/\s+/g," ").toLowerCase();
+/* =========================
+   SQLite Schema
+========================= */
+function initSchema(){
+  db.run(`
+    PRAGMA foreign_keys=ON;
+
+    CREATE TABLE IF NOT EXISTS meta(
+      key TEXT PRIMARY KEY,
+      value TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS rules(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      source TEXT DEFAULT 'rules_pdf',
+      page INTEGER,
+      line_no INTEGER,
+      heading TEXT,
+      text TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_rules_text ON rules(text);
+    CREATE INDEX IF NOT EXISTS idx_rules_heading ON rules(heading);
+
+    CREATE TABLE IF NOT EXISTS jamabandi_lines(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      page INTEGER,
+      line_no INTEGER,
+      heading TEXT,
+      text TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_jam_text ON jamabandi_lines(text);
+    CREATE INDEX IF NOT EXISTS idx_jam_heading ON jamabandi_lines(heading);
+
+    CREATE TABLE IF NOT EXISTS owners(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      owner_name TEXT,
+      share_raw TEXT,
+      percent_raw TEXT,
+      page INTEGER,
+      line_no INTEGER,
+      context TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_owner_name ON owners(owner_name);
+
+    CREATE TABLE IF NOT EXISTS khasra_refs(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      khasra_no TEXT,
+      page INTEGER,
+      line_no INTEGER,
+      context TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_khasra_no ON khasra_refs(khasra_no);
+  `);
 }
 
-// ------------------------
-// DB schema
-// ------------------------
-const SCHEMA = `
-PRAGMA journal_mode=WAL;
-
-CREATE TABLE IF NOT EXISTS documents (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  filename TEXT NOT NULL,
-  source TEXT NOT NULL,          -- 'github' or 'upload'
-  uploaded_at TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS sections (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  document_id INTEGER NOT NULL,
-  section_key TEXT NOT NULL,
-  heading TEXT NOT NULL,
-  page_start INTEGER NOT NULL,
-  page_end INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS content (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  section_id INTEGER NOT NULL,
-  page_no INTEGER NOT NULL,
-  line_no INTEGER NOT NULL,
-  text TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS entities (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  document_id INTEGER NOT NULL,
-  entity_type TEXT NOT NULL,
-  entity_key TEXT NOT NULL,
-  raw_text TEXT NOT NULL,
-  page_no INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS ownership (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  document_id INTEGER NOT NULL,
-  owner_name TEXT NOT NULL,
-  share_value TEXT,
-  share_percent TEXT,
-  page_no INTEGER NOT NULL,
-  raw_line TEXT NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_sections_doc ON sections(document_id);
-CREATE INDEX IF NOT EXISTS idx_content_section ON content(section_id);
-CREATE INDEX IF NOT EXISTS idx_entities_doc_type ON entities(document_id, entity_type, entity_key);
-CREATE INDEX IF NOT EXISTS idx_ownership_doc_owner ON ownership(document_id, owner_name);
-`;
-
-async function init(){
-  setDbState("loading engine…");
-  SQL = await initSqlJs({
-    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
-  });
-  newDb();
-  wireUI();
-  fillRuleDropdown();
-  setDbState("ready");
-}
-
-function fillRuleDropdown(){
-  ruleSelect.innerHTML = "";
-  RULE_PDFS.forEach((r, i)=>{
-    const opt = document.createElement("option");
-    opt.value = r.path;
-    opt.textContent = r.label + " (" + r.path + ")";
-    ruleSelect.appendChild(opt);
-  });
-}
-
-function newDb(){
-  db = new SQL.Database();
-  db.run(SCHEMA);
-  importedDocId = null;
-  btnDownloadDb.disabled = false;
-  updateSummary();
-  showResults([]);
-  logStatus("DB ready. Upload Jamabandi OR load Rule PDF from GitHub.");
-  logRule("");
-  setDbState("ready");
-}
-
-function exportDbBytes(){ return db.export(); }
-
-function downloadDb(){
-  const bytes = exportDbBytes();
-  const blob = new Blob([bytes], {type:"application/octet-stream"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "jamabandi.db";
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-// ------------------------
-// Heading detection
-// ------------------------
-function detectHeading(line, hindiMode){
-  const s = (line||"").trim();
-  if (!s) return null;
-
-  // Numbered headings
-  const num = s.match(/^(\d{1,4})\.\s+(.+)$/);
-  if (num) return {key:num[1], heading:s};
-
-  // Hindi headings (Jamabandi patterns)
-  if (hindiMode){
-    if (/^जमाबंदी\b/i.test(s)) return {key:"जमाबंदी", heading:s};
-    if (/^खसरा\b/i.test(s)) return {key:"खसरा", heading:s};
-    if (/^खतौनी\b/i.test(s)) return {key:"खतौनी", heading:s};
-    if (/^खेवट\b/i.test(s)) return {key:"खेवट", heading:s};
-    if (/^मालिक\b/i.test(s)) return {key:"मालिक", heading:s};
-    if (/^नाम\b/i.test(s)) return {key:"नाम", heading:s};
-  }
-
-  // ALL CAPS headings
-  if (/^[A-Z][A-Z\s\-\&]{6,}$/.test(s)) return {key:s.slice(0,40), heading:s};
-
-  return null;
-}
-
-// ------------------------
-// Entity extraction (best-effort)
-// ------------------------
-function extractEntitiesFromLine(line){
-  const out = [];
-  const khasraMatches = line.match(/\b\d{3,6}\b/g);
-  if (khasraMatches){
-    khasraMatches.slice(0, 10).forEach(k=>{
-      out.push({type:"khasra", key:k, raw:line});
-    });
-  }
-  const ownerHindi = line.match(/([अ-ह][अ-ह\s\.]{2,})/g);
-  if (ownerHindi){
-    ownerHindi.slice(0,2).forEach(name=>{
-      out.push({type:"owner", key:normalizeKey(name), raw:name.trim()});
-    });
-  }
-  const ownerEng = line.match(/\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})\b/g);
-  if (ownerEng){
-    ownerEng.slice(0,2).forEach(name=>{
-      out.push({type:"owner", key:normalizeKey(name), raw:name.trim()});
-    });
-  }
-  return out;
-}
-
-function extractOwnership(line){
-  const res = [];
-  const pct = line.match(/(\d+(?:\.\d+)?)\s*%/);
-  const frac = line.match(/\b(\d+)\s*\/\s*(\d+)\b/);
-  const name = line.match(/^([A-Za-zअ-ह][A-Za-zअ-ह\s\.\-]{2,60})/);
-
-  if (name && (pct || frac)){
-    res.push({
-      owner: name[1].trim(),
-      share_value: frac ? `${frac[1]}/${frac[2]}` : null,
-      share_percent: pct ? `${pct[1]}%` : null,
-      raw_line: line
-    });
-  }
-  return res;
-}
-
-// ------------------------
-// PDF extraction helpers
-// ------------------------
-async function extractPdfPagesFromArrayBuffer(arrayBuffer){
-  const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-  const pages = [];
-  for (let p=1; p<=pdf.numPages; p++){
-    const page = await pdf.getPage(p);
-    const txt = await page.getTextContent();
-    const strings = txt.items.map(it => (it.str||"").trim()).filter(Boolean);
-    const joined = strings.join(" ");
-    const lines = joined
-      .split(/\n+/)
-      .flatMap(x => x.split(/\s{2,}/))
-      .map(s => s.trim())
-      .filter(Boolean);
-    pages.push({page:p, lines});
-  }
-  return pages;
-}
-
-async function fetchPdfArrayBuffer(path){
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`Cannot fetch ${path} (HTTP ${res.status}). Check file path & GitHub Pages.`);
-  return await res.arrayBuffer();
-}
-
-// ------------------------
-// DB utilities
-// ------------------------
-function run(sql, params=[]){
-  const stmt = db.prepare(sql);
-  stmt.bind(params);
-  stmt.step();
-  stmt.free();
-}
-
-function all(sql, params=[]){
+/* =========================
+   SQL Helpers
+========================= */
+function execSelect(sql, params=[]){
   const stmt = db.prepare(sql);
   stmt.bind(params);
   const rows = [];
-  while (stmt.step()){
+  while(stmt.step()){
     rows.push(stmt.getAsObject());
   }
   stmt.free();
   return rows;
 }
+function execRun(sql, params=[]){
+  const stmt = db.prepare(sql);
+  stmt.bind(params);
+  stmt.step();
+  stmt.free();
+}
+function dbSummary(){
+  const rows = execSelect(`
+    SELECT
+      (SELECT COUNT(*) FROM rules) AS rules_rows,
+      (SELECT COUNT(*) FROM jamabandi_lines) AS jam_rows,
+      (SELECT COUNT(*) FROM owners) AS owners_rows,
+      (SELECT COUNT(*) FROM khasra_refs) AS khasra_rows
+  `);
+  const r = rows[0] || {rules_rows:0,jam_rows:0,owners_rows:0,khasra_rows:0};
+  $("kpiRules").textContent = r.rules_rows;
+  $("kpiJam").textContent = r.jam_rows;
+  $("kpiOwners").textContent = r.owners_rows;
+  $("kpiKhasra").textContent = r.khasra_rows;
 
-async function importPagesIntoDb({filename, source, pages, hindiMode, detectHeadings, extractEntities}){
-  setDbState("importing…");
+  summarySet(
+`Rules lines: ${r.rules_rows}
+Jamabandi lines: ${r.jam_rows}
+Owners found: ${r.owners_rows}
+Khasra found: ${r.khasra_rows}
 
-  // insert document
-  const uploadedAt = new Date().toISOString();
-  run(`INSERT INTO documents(filename, source, uploaded_at) VALUES (?, ?, ?)`, [filename, source, uploadedAt]);
-  const docRow = all(`SELECT id FROM documents ORDER BY id DESC LIMIT 1`)[0];
-  const docId = docRow?.id;
-  importedDocId = docId;
+Rule loaded: ${ruleLoaded ? "YES" : "NO"}
+Jamabandi imported: ${jamLoaded ? "YES" : "NO"}`
+  );
+}
 
-  // initial section
-  run(`INSERT INTO sections(document_id, section_key, heading, page_start, page_end)
-       VALUES (?, ?, ?, ?, ?)`,
-       [docId, "PREFACE", "Before first heading", 1, 1]);
-  let currentSectionId = all(`SELECT id FROM sections ORDER BY id DESC LIMIT 1`)[0].id;
+/* =========================
+   PDF Text Extract
+========================= */
+function normalizeText(s){
+  return (s || "")
+    .replace(/\u00A0/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\s+\n/g, "\n")
+    .trim();
+}
 
-  db.run("BEGIN");
+// Basic heading detection (works for many rule manuals & jamabandi prints)
+function detectHeading(line){
+  const t = line.trim();
+  if(!t) return null;
+
+  // English chapter-like
+  if (/^(CHAPTER|Chapter)\s+[IVX0-9]+/i.test(t)) return t;
+
+  // Hindi-like: "अध्याय", "धारा", "खंड", "परिशिष्ट", "विषय"
+  if (/^(अध्याय|धारा|खंड|परिशिष्ट|विषय|अनुसूची)\b/.test(t)) return t;
+
+  // numbered heading (1. ... / 1) ...
+  if (/^\(?\d{1,3}\)?[.)-]\s+\S+/.test(t) && t.length <= 90) return t;
+
+  // ALL CAPS short lines (often headings)
+  if (t.length <= 60 && /^[A-Z0-9 ,.-]+$/.test(t) && /[A-Z]/.test(t)) return t;
+
+  return null;
+}
+
+// Owner & share extraction (best-effort; jamabandi formats vary)
+function extractOwnersFromLine(line){
+  const res = [];
+  const t = line.trim();
+  if(!t) return res;
+
+  // Hindi share patterns like "567/12096" or "567/40320"
+  const frac = t.match(/(\d{1,6})\s*\/\s*(\d{1,6})/);
+  // Percent pattern
+  const pct = t.match(/(\d{1,3}(?:\.\d+)?)\s*%/);
+
+  // Owner name: try capture Hindi/English words before share
+  // Examples: "Narender Singh 567/12096", "नरेन्द्र सिंह 567/12096"
+  let name = null;
+
+  // If fraction exists, take left side as candidate name
+  if(frac){
+    const left = t.slice(0, frac.index).trim();
+    // cleanup common separators
+    name = left.replace(/[:\-–—|]+$/g,"").trim();
+    // If very long, cut last 60 chars
+    if(name.length > 80) name = name.slice(-80).trim();
+    if(name.length < 2) name = null;
+  } else if(pct){
+    const left = t.slice(0, pct.index).trim();
+    name = left.replace(/[:\-–—|]+$/g,"").trim();
+    if(name.length > 80) name = name.slice(-80).trim();
+    if(name.length < 2) name = null;
+  }
+
+  // Some jamabandi lines have multiple owners separated by comma/space
+  if(name && (frac || pct)){
+    // Split cautiously by comma/; only if looks like list
+    const parts = name.split(/[;,]/).map(x=>x.trim()).filter(Boolean);
+    if(parts.length > 1){
+      for(const p of parts){
+        res.push({owner_name:p, share_raw: frac ? `${frac[1]}/${frac[2]}` : null, percent_raw: pct ? `${pct[1]}%` : null});
+      }
+    }else{
+      res.push({owner_name:name, share_raw: frac ? `${frac[1]}/${frac[2]}` : null, percent_raw: pct ? `${pct[1]}%` : null});
+    }
+  }
+  return res;
+}
+
+function extractKhasraFromLine(line){
+  const res = [];
+  const t = line.trim();
+  if(!t) return res;
+
+  // Common: "खसरा", "khasra", "Khasra No"
+  // capture numbers like 1825, 1825/1, 1825-1827
+  const rx = /(खसरा|khasra)\s*(no\.?|नं\.?|न\.?|number)?\s*[:\-–—]?\s*([0-9]{1,6}(?:\/[0-9]{1,3})?(?:\s*[-–]\s*[0-9]{1,6}(?:\/[0-9]{1,3})?)?)/ig;
+  let m;
+  while((m = rx.exec(t))){
+    res.push(m[3].replace(/\s+/g,""));
+  }
+
+  // Also sometimes khasra numbers appear in tables without keyword; optional light scan:
+  // If line contains "किस्म" / "रकबा" etc, try find 3-6 digit tokens.
+  if(res.length === 0 && /(रकबा|किस्म|मिन|min)/i.test(t)){
+    const nums = t.match(/\b[0-9]{3,6}(?:\/[0-9]{1,3})?\b/g);
+    if(nums) res.push(...nums.slice(0,6));
+  }
+
+  return [...new Set(res)];
+}
+
+async function pdfToLines(arrayBuffer){
+  const doc = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+  const all = [];
+  for(let p=1;p<=doc.numPages;p++){
+    const page = await doc.getPage(p);
+    const content = await page.getTextContent();
+    const strings = content.items.map(i => i.str);
+    const text = normalizeText(strings.join("\n"));
+    const lines = text.split("\n").map(x=>x.trim()).filter(x=>x.length>0);
+    all.push({page:p, lines});
+  }
+  return all;
+}
+
+/* =========================
+   Import Rules PDF
+========================= */
+async function loadRulePdfFromGitHub(){
+  pill($("rulePill"), "Rules: loading...", null);
+  $("loadRuleBtn").disabled = true;
+
   try{
-    for (const pg of pages){
-      const pageno = pg.page;
-      let lineNo = 0;
+    const url = $("ruleUrl").value.trim();
+    const res = await fetch(url, {cache:"no-store"});
+    if(!res.ok) throw new Error("Rule PDF fetch failed: " + res.status);
 
-      for (const rawLine of pg.lines){
-        lineNo++;
-        const line = (rawLine||"").trim();
-        if (!line) continue;
+    const buf = await res.arrayBuffer();
+    const pages = await pdfToLines(buf);
 
-        if (detectHeadings){
-          const h = detectHeading(line, hindiMode);
-          if (h){
-            run(`UPDATE sections SET page_end=? WHERE id=?`, [pageno, currentSectionId]);
-            run(`INSERT INTO sections(document_id, section_key, heading, page_start, page_end)
-                 VALUES (?, ?, ?, ?, ?)`,
-                 [docId, h.key, h.heading, pageno, pageno]);
-            currentSectionId = all(`SELECT id FROM sections ORDER BY id DESC LIMIT 1`)[0].id;
-            continue;
-          }
+    // Reset old rules
+    db.run("DELETE FROM rules;");
+    db.run("DELETE FROM meta WHERE key LIKE 'rules_%';");
+
+    let currentHeading = null;
+    let lineCount = 0;
+
+    const ins = db.prepare("INSERT INTO rules(page,line_no,heading,text) VALUES(?,?,?,?)");
+
+    for(const pg of pages){
+      let ln = 0;
+      for(const rawLine of pg.lines){
+        ln++;
+        const maybeH = $("detectHeadings").checked ? detectHeading(rawLine) : null;
+        if(maybeH) currentHeading = maybeH;
+
+        ins.bind([pg.page, ln, currentHeading, rawLine]);
+        ins.step();
+        ins.reset();
+        lineCount++;
+      }
+    }
+    ins.free();
+
+    execRun("INSERT OR REPLACE INTO meta(key,value) VALUES('rules_url',?)", [url]);
+    execRun("INSERT OR REPLACE INTO meta(key,value) VALUES('rules_pages',?)", [String(pages.length)]);
+    execRun("INSERT OR REPLACE INTO meta(key,value) VALUES('rules_lines',?)", [String(lineCount)]);
+
+    ruleLoaded = true;
+    pill($("rulePill"), `Rules: loaded (${lineCount} lines)`, true);
+    outPrint(`✅ Rules imported from:\n${url}\nLines: ${lineCount}\nPages: ${pages.length}`);
+  }catch(e){
+    ruleLoaded = false;
+    pill($("rulePill"), "Rules: failed", false);
+    outPrint("❌ Rule load error: " + (e?.message || e));
+  }finally{
+    $("loadRuleBtn").disabled = false;
+    refreshButtons();
+    dbSummary();
+  }
+}
+
+/* =========================
+   Import Jamabandi PDF
+========================= */
+async function importJamabandi(){
+  const f = $("jamFile").files?.[0];
+  if(!f){ alert("Select Jamabandi PDF first."); return; }
+
+  pill($("jamPill"), "Jamabandi: importing...", null);
+  $("importJamBtn").disabled = true;
+
+  try{
+    const buf = await f.arrayBuffer();
+    const pages = await pdfToLines(buf);
+
+    // Reset old jamabandi
+    db.run("DELETE FROM jamabandi_lines;");
+    db.run("DELETE FROM owners;");
+    db.run("DELETE FROM khasra_refs;");
+    db.run("DELETE FROM meta WHERE key LIKE 'jam_%';");
+
+    let currentHeading = null;
+    let jamLines = 0;
+    let ownersFound = 0;
+    let khasraFound = 0;
+
+    const insLine = db.prepare("INSERT INTO jamabandi_lines(page,line_no,heading,text) VALUES(?,?,?,?)");
+    const insOwner = db.prepare("INSERT INTO owners(owner_name,share_raw,percent_raw,page,line_no,context) VALUES(?,?,?,?,?,?)");
+    const insKhasra = db.prepare("INSERT INTO khasra_refs(khasra_no,page,line_no,context) VALUES(?,?,?,?)");
+
+    const doHindi = $("hindiMode").checked;
+    const doHeading = $("detectHeadings").checked;
+    const doExtract = $("extractKhasraOwners").checked;
+
+    for(const pg of pages){
+      let ln = 0;
+      for(const rawLine of pg.lines){
+        ln++;
+        let line = rawLine;
+
+        // light cleanup for jamabandi
+        if(doHindi){
+          line = line.replace(/[|•]/g, " ").replace(/[ \t]+/g, " ").trim();
         }
 
-        run(`INSERT INTO content(section_id, page_no, line_no, text) VALUES (?, ?, ?, ?)`,
-            [currentSectionId, pageno, lineNo, line]);
+        const maybeH = doHeading ? detectHeading(line) : null;
+        if(maybeH) currentHeading = maybeH;
 
-        if (extractEntities){
-          const ents = extractEntitiesFromLine(line);
-          for (const e of ents){
-            run(`INSERT INTO entities(document_id, entity_type, entity_key, raw_text, page_no)
-                 VALUES (?, ?, ?, ?, ?)`,
-                 [docId, e.type, e.key, e.raw, pageno]);
+        insLine.bind([pg.page, ln, currentHeading, line]);
+        insLine.step(); insLine.reset();
+        jamLines++;
+
+        if(doExtract){
+          // Owners
+          const owners = extractOwnersFromLine(line);
+          for(const o of owners){
+            insOwner.bind([o.owner_name, o.share_raw, o.percent_raw, pg.page, ln, line]);
+            insOwner.step(); insOwner.reset();
+            ownersFound++;
           }
 
-          const owns = extractOwnership(line);
-          for (const o of owns){
-            run(`INSERT INTO ownership(document_id, owner_name, share_value, share_percent, page_no, raw_line)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-                 [docId, o.owner, o.share_value, o.share_percent, pageno, o.raw_line]);
+          // Khasra
+          const khasras = extractKhasraFromLine(line);
+          for(const k of khasras){
+            insKhasra.bind([k, pg.page, ln, line]);
+            insKhasra.step(); insKhasra.reset();
+            khasraFound++;
           }
         }
       }
     }
 
-    run(`UPDATE sections SET page_end=? WHERE document_id=? AND id=?`,
-        [pages.length, docId, currentSectionId]);
+    insLine.free(); insOwner.free(); insKhasra.free();
 
-    db.run("COMMIT");
-  }catch(err){
-    db.run("ROLLBACK");
-    setDbState("error");
-    throw err;
-  }
+    execRun("INSERT OR REPLACE INTO meta(key,value) VALUES('jam_filename',?)", [f.name]);
+    execRun("INSERT OR REPLACE INTO meta(key,value) VALUES('jam_pages',?)", [String(pages.length)]);
+    execRun("INSERT OR REPLACE INTO meta(key,value) VALUES('jam_lines',?)", [String(jamLines)]);
+    execRun("INSERT OR REPLACE INTO meta(key,value) VALUES('jam_owners_found',?)", [String(ownersFound)]);
+    execRun("INSERT OR REPLACE INTO meta(key,value) VALUES('jam_khasra_found',?)", [String(khasraFound)]);
 
-  setDbState("ready");
-  updateSummary();
-
-  const hs = all(`SELECT section_key, heading, page_start, page_end
-                  FROM sections WHERE document_id=? ORDER BY id LIMIT 25`, [docId]);
-  showResults(hs);
-  return docId;
-}
-
-// ------------------------
-// Load Rule PDF from GitHub
-// ------------------------
-async function loadRuleFromGithub(){
-  const path = ruleSelect.value;
-  const label = ruleSelect.options[ruleSelect.selectedIndex]?.textContent || path;
-
-  logRule("Fetching: " + path + " …");
-  try{
-    const buffer = await fetchPdfArrayBuffer(path);
-    logRule("Extracting text from: " + label + " …");
-    const pages = await extractPdfPagesFromArrayBuffer(buffer);
-
-    const docId = await importPagesIntoDb({
-      filename: path,
-      source: "github",
-      pages,
-      hindiMode: false,                 // rule pdf usually English
-      detectHeadings: true,
-      extractEntities: false
-    });
-
-    logRule(`✅ Loaded + imported rule PDF. document_id=${docId} | pages=${pages.length}`);
+    jamLoaded = true;
+    pill($("jamPill"), `Jamabandi: imported (${jamLines} lines)`, true);
+    outPrint(`✅ Jamabandi imported:\n${f.name}\nLines: ${jamLines}\nPages: ${pages.length}\nOwners: ${ownersFound}\nKhasra: ${khasraFound}`);
   }catch(e){
-    logRule("❌ " + e.message);
+    jamLoaded = false;
+    pill($("jamPill"), "Jamabandi: failed", false);
+    outPrint("❌ Jamabandi import error: " + (e?.message || e));
+  }finally{
+    $("importJamBtn").disabled = false;
+    refreshButtons();
+    dbSummary();
   }
 }
 
-// ------------------------
-// Import Jamabandi upload
-// ------------------------
-async function importJamabandiUpload(){
-  const file = filePdf.files?.[0];
-  if (!file) return;
-
-  const hindiMode = $("chkHindiMode").checked;
-  const detectHeadings = $("chkDetectHeadings").checked;
-  const extractEntities = $("chkExtractEntities").checked;
-
-  setDbState("importing…");
-  logStatus("Reading PDF pages…");
-
-  const buffer = await file.arrayBuffer();
-  const pages = await extractPdfPagesFromArrayBuffer(buffer);
+/* =========================
+   Query / Fetch
+========================= */
+function fetchQuery(){
+  const active = document.querySelector(".tab.active")?.dataset?.tab;
 
   try{
-    const docId = await importPagesIntoDb({
-      filename: file.name,
-      source: "upload",
-      pages,
-      hindiMode,
-      detectHeadings,
-      extractEntities
-    });
+    if(!db) throw new Error("DB not ready yet.");
 
-    logStatus(`✅ Imported Jamabandi: ${file.name} | pages=${pages.length} | document_id=${docId}`);
+    let rows = [];
+    if(active === "heading"){
+      const q = $("qHeading").value.trim();
+      if(!q) return outPrint("⚠️ Enter heading keyword.");
+      rows = execSelect(`
+        SELECT 'rules' AS src, page, line_no, heading, text
+        FROM rules
+        WHERE (heading LIKE ? OR text LIKE ?)
+        LIMIT 80
+      `, [`%${q}%`, `%${q}%`]);
+
+      const rows2 = execSelect(`
+        SELECT 'jamabandi' AS src, page, line_no, heading, text
+        FROM jamabandi_lines
+        WHERE (heading LIKE ? OR text LIKE ?)
+        LIMIT 80
+      `, [`%${q}%`, `%${q}%`]);
+
+      rows = rows.concat(rows2);
+      outPrint("🔎 Result (By Heading keyword):\n" + fmtRows(rows));
+      return;
+    }
+
+    if(active === "owner"){
+      const q = $("qOwner").value.trim();
+      if(!q) return outPrint("⚠️ Enter owner keyword.");
+      rows = execSelect(`
+        SELECT owner_name, share_raw, percent_raw, page, line_no, context
+        FROM owners
+        WHERE owner_name LIKE ? OR context LIKE ?
+        LIMIT 120
+      `, [`%${q}%`, `%${q}%`]);
+      outPrint("👤 Owners match:\n" + fmtRows(rows));
+      return;
+    }
+
+    if(active === "khasra"){
+      const q = $("qKhasra").value.trim();
+      if(!q) return outPrint("⚠️ Enter khasra number.");
+      rows = execSelect(`
+        SELECT khasra_no, page, line_no, context
+        FROM khasra_refs
+        WHERE khasra_no LIKE ? OR context LIKE ?
+        LIMIT 120
+      `, [`%${q}%`, `%${q}%`]);
+      outPrint("📌 Khasra match:\n" + fmtRows(rows));
+      return;
+    }
+
+    if(active === "sql"){
+      const sql = $("qSql").value.trim();
+      if(!sql) return outPrint("⚠️ Enter SQL.");
+      // Allow multiple statements; if SELECT, show last result set
+      // sql.js exec returns arrays with columns/values
+      const res = db.exec(sql);
+      if(!res || !res.length) return outPrint("✅ SQL executed (no result set).");
+
+      // Convert first result set to markdown-like
+      const r0 = res[0];
+      const cols = r0.columns;
+      const values = r0.values;
+
+      const out = [];
+      out.push(cols.join(" | "));
+      out.push(cols.map(()=> "---").join(" | "));
+      for(const v of values.slice(0,200)){
+        out.push(v.map(x => (x===null||x===undefined) ? "" : String(x)).join(" | "));
+      }
+      outPrint("🧾 SQL Result:\n" + out.join("\n"));
+      return;
+    }
   }catch(e){
-    logStatus("❌ Import failed: " + e.message);
-  } finally {
-    setDbState("ready");
+    outPrint("❌ Fetch error: " + (e?.message || e));
   }
 }
 
-function updateSummary(){
-  const docs = all(`SELECT COUNT(*) as n FROM documents`)[0].n;
-  const secs = all(`SELECT COUNT(*) as n FROM sections`)[0].n;
-  const lines = all(`SELECT COUNT(*) as n FROM content`)[0].n;
-  const ents = all(`SELECT COUNT(*) as n FROM entities`)[0].n;
-  const owns = all(`SELECT COUNT(*) as n FROM ownership`)[0].n;
-  summaryBox.textContent =
-    `Documents: ${docs}\nSections: ${secs}\nContent lines: ${lines}\nEntities: ${ents}\nOwnership rows: ${owns}\nLast imported document_id: ${importedDocId ?? "none"}`;
-}
-
-// ------------------------
-// Queries
-// ------------------------
-function fetchByHeading(){
-  if (!importedDocId) return showResults(["Import/load a PDF first."]);
-  const key = $("headingKey").value.trim();
-  if (!key) return showResults(["Enter a heading key."]);
-
-  const sec = all(
-    `SELECT id, document_id, section_key, heading, page_start, page_end
-     FROM sections
-     WHERE (LOWER(section_key)=LOWER(?) OR heading LIKE ?)
-     ORDER BY document_id DESC, id ASC
-     LIMIT 10`,
-    [key, `%${key}%`]
-  );
-  if (sec.length === 0) return showResults(["No section found."]);
-
-  const sid = sec[0].id;
-  const lines = all(
-    `SELECT page_no, line_no, text
-     FROM content
-     WHERE section_id=?
-     ORDER BY page_no, line_no
-     LIMIT 400`,
-    [sid]
-  );
-
-  showResults([
-    {SECTION: sec[0]},
-    ...lines.map(r => `[p${r.page_no}:${r.line_no}] ${r.text}`)
-  ]);
-}
-
-function searchOwner(){
-  if (!importedDocId) return showResults(["Import/load a PDF first."]);
-  const name = $("ownerName").value.trim();
-  if (!name) return showResults(["Enter owner name."]);
-
-  const o = all(
-    `SELECT document_id, owner_name, share_value, share_percent, page_no, raw_line
-     FROM ownership
-     WHERE owner_name LIKE ?
-     ORDER BY document_id DESC, page_no
-     LIMIT 80`,
-    [`%${name}%`]
-  );
-
-  const c = all(
-    `SELECT s.document_id, s.section_key, c.page_no, c.text
-     FROM content c
-     JOIN sections s ON s.id=c.section_id
-     WHERE c.text LIKE ?
-     ORDER BY s.document_id DESC, c.page_no
-     LIMIT 120`,
-    [`%${name}%`]
-  );
-
-  const out = [];
-  if (o.length) out.push({OWNERSHIP_MATCHES: o.length}, ...o);
-  if (c.length) out.push({CONTENT_MATCHES: c.length}, ...c.map(x=>`[doc${x.document_id} ${x.section_key}] p${x.page_no}: ${x.text}`));
-  showResults(out.length ? out : ["No match found."]);
-}
-
-function searchKhasra(){
-  if (!importedDocId) return showResults(["Import/load a PDF first."]);
-  const k = $("khasraNo").value.trim();
-  if (!k) return showResults(["Enter khasra number."]);
-
-  const e = all(
-    `SELECT document_id, entity_key, raw_text, page_no
-     FROM entities
-     WHERE entity_type='khasra' AND entity_key=?
-     ORDER BY document_id DESC, page_no
-     LIMIT 80`,
-    [k]
-  );
-
-  const c = all(
-    `SELECT s.document_id, s.section_key, c.page_no, c.text
-     FROM content c
-     JOIN sections s ON s.id=c.section_id
-     WHERE c.text LIKE ?
-     ORDER BY s.document_id DESC, c.page_no
-     LIMIT 120`,
-    [`%${k}%`]
-  );
-
-  const out = [];
-  if (e.length) out.push({ENTITY_MATCHES: e.length}, ...e);
-  if (c.length) out.push({CONTENT_MATCHES: c.length}, ...c.map(x=>`[doc${x.document_id} ${x.section_key}] p${x.page_no}: ${x.text}`));
-  showResults(out.length ? out : ["No match found."]);
-}
-
-function runSQL(){
-  const q = $("sqlBox").value.trim();
-  if (!q) return showResults(["Write SQL query."]);
+/* =========================
+   Download DB
+========================= */
+function downloadDb(){
   try{
-    const rows = all(q);
-    showResults(rows);
-  }catch(err){
-    showResults(["SQL Error: " + err.message]);
+    const bin = db.export();
+    const blob = new Blob([bin], {type:"application/x-sqlite3"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "jamabandi_rules.db";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+    outPrint("⬇️ Download started: jamabandi_rules.db");
+  }catch(e){
+    outPrint("❌ Download error: " + (e?.message || e));
   }
 }
 
-// ------------------------
-// UI wiring
-// ------------------------
-function wireUI(){
-  $("btnNewDb").addEventListener("click", newDb);
-  $("btnDownloadDb").addEventListener("click", downloadDb);
+/* =========================
+   New DB (reset)
+========================= */
+function newDb(){
+  if(!SQL) return;
+  db = new SQL.Database();
+  initSchema();
+  ruleLoaded = false;
+  jamLoaded = false;
+  pill($("rulePill"), "Rules: not loaded", null);
+  pill($("jamPill"), "Jamabandi: not imported", null);
+  outSet("✅ New DB created. Load Rule PDF and import Jamabandi.");
+  dbSummary();
+  refreshButtons();
+}
 
-  $("btnLoadRule").addEventListener("click", loadRuleFromGithub);
-
-  filePdf.addEventListener("change", ()=>{
-    btnImport.disabled = !filePdf.files?.length;
-    logStatus(filePdf.files?.length ? "Jamabandi PDF selected. Click Import." : "Select Jamabandi PDF.");
+/* =========================
+   Tabs
+========================= */
+function setTab(name){
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.classList.toggle("active", t.dataset.tab === name);
   });
+  $("panel-heading").style.display = (name==="heading") ? "block" : "none";
+  $("panel-owner").style.display   = (name==="owner") ? "block" : "none";
+  $("panel-khasra").style.display  = (name==="khasra") ? "block" : "none";
+  $("panel-sql").style.display     = (name==="sql") ? "block" : "none";
+}
 
-  btnImport.addEventListener("click", async ()=>{
-    btnImport.disabled = true;
-    try{ await importJamabandiUpload(); }
-    finally{ btnImport.disabled = false; }
-  });
+/* =========================
+   Enable/disable buttons
+========================= */
+function refreshButtons(){
+  const ready = !!db;
+  $("newDbBtn").disabled = !ready;
+  $("downloadDbBtn").disabled = !ready;
 
-  $("btnGetHeading").addEventListener("click", fetchByHeading);
-  $("btnOwner").addEventListener("click", searchOwner);
-  $("btnKhasra").addEventListener("click", searchKhasra);
-  $("btnRunSQL").addEventListener("click", runSQL);
+  $("loadRuleBtn").disabled = !ready;
+  $("importJamBtn").disabled = !ready;
+  $("fetchBtn").disabled = !ready;
 
+  // Slightly guide user:
+  if(ready){
+    setStatus("DB: ready", true);
+  }
+}
+
+/* =========================
+   Boot
+========================= */
+(async function boot(){
+  $("ruleUrl").value = RULE_PDF_URL;
+
+  // Tabs
   document.querySelectorAll(".tab").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
-      document.querySelectorAll(".tabpane").forEach(p=>p.classList.remove("active"));
-      btn.classList.add("active");
-      $(btn.dataset.tab).classList.add("active");
-    });
+    btn.addEventListener("click", ()=>setTab(btn.dataset.tab));
   });
-}
 
-init();
+  // Buttons
+  $("clearOutBtn").addEventListener("click", ()=> outSet(""));
+  $("fetchBtn").addEventListener("click", fetchQuery);
+  $("downloadDbBtn").addEventListener("click", downloadDb);
+  $("newDbBtn").addEventListener("click", newDb);
+  $("loadRuleBtn").addEventListener("click", loadRulePdfFromGitHub);
+  $("importJamBtn").addEventListener("click", importJamabandi);
+
+  // Init SQL.js
+  setStatus("DB: loading...", null);
+  try{
+    SQL = await initSqlJs({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/${file}`
+    });
+    newDb();
+  }catch(e){
+    setStatus("DB: failed", false);
+    outSet("❌ Failed to load sql.js: " + (e?.message || e));
+    return;
+  }
+
+  // Small UX: if user picks file enable import
+  $("jamFile").addEventListener("change", ()=>{
+    const has = $("jamFile").files?.length > 0;
+    if(has) pill($("jamPill"), "Jamabandi: file selected", null);
+  });
+
+  // First summary
+  dbSummary();
+  refreshButtons();
+})();
 </script>
 </body>
-</html>
+          </html>
