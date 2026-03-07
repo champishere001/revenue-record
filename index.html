@@ -8,28 +8,60 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; overflow: hidden; background: #0f172a; }
+        body { font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; overflow: hidden; background: #0f172a; margin: 0; padding: 0; }
         .slide { display: none; height: 100vh; width: 100vw; animation: slideUp 0.5s ease-out; background: white; }
         .slide.active { display: flex; flex-direction: column; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- NEW 5% HEIGHT FOOTER SYSTEM --- */
+        .footer-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 8vh; /* Occupies roughly 5-8% of the viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- THE 95% WIDTH BOX --- */
+        .nav-box {
+            width: 95%;
+            background: #1e293b;
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #94a3b8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            transition: 0.2s ease;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .nav-item:hover { color: #3b82f6; background: rgba(255, 255, 255, 0.05); border-radius: 8px; }
         
-        /* Persistent Footer */
-        .global-footer { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            background: #1e293b; color: white; 
-            padding: 15px 30px; z-index: 1000; 
-            display: flex; justify-content: center; align-items: center;
-            border-top: 4px solid #3b82f6;
-            box-shadow: 0 -10px 25px rgba(0,0,0,0.3);
+        .nav-item.active {
+            color: #ffffff;
+            background: #3b82f6;
+            border-radius: 8px;
         }
-        .nav-item { 
-            padding: 10px 20px; border-radius: 12px; cursor: pointer; 
-            transition: 0.3s; display: flex; flex-direction: column; 
-            align-items: center; gap: 4px; color: #94a3b8;
-        }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
-        .nav-item.active { background: #3b82f6; color: white; }
-        .nav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        .nav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -83,46 +115,39 @@
 
     </div>
 
-    <footer class="global-footer">
-        <div class="flex gap-2">
-            <div class="nav-item active" onclick="jump(0)" id="nav-0">
-                <i class="fas fa-desktop"></i>
-                <span class="nav-label">1. e-SIGMA</span>
-            </div>
-            <div class="nav-item" onclick="jump(1)" id="nav-1">
-                <i class="fas fa-file-invoice"></i>
-                <span class="nav-label">2. Main</span>
-            </div>
-            <div class="nav-item" onclick="jump(2)" id="nav-2">
-                <i class="fas fa-layer-group"></i>
-                <span class="nav-label">3. Main 2</span>
-            </div>
-            <div class="nav-item" onclick="jump(3)" id="nav-3">
-                <i class="fas fa-list-ol"></i>
-                <span class="nav-label">4. Main 3</span>
-            </div>
-            <div class="nav-item" onclick="jump(4)" id="nav-4">
-                <i class="fas fa-tags"></i>
-                <span class="nav-label">5. NIC NCO</span>
-            </div>
-        </div>
-    </footer>
+    <div class="footer-area">
+        <nav class="nav-box">
+            <a href="index.html" class="nav-item active">
+                <i class="fas fa-home"></i><span class="nav-label">Home</span>
+            </a>
+            <a href="esigma.html" class="nav-item">
+                <i class="fas fa-desktop"></i><span class="nav-label">e-SIGMA</span>
+            </a>
+            <a href="main.html" class="nav-item">
+                <i class="fas fa-file-contract"></i><span class="nav-label">Main</span>
+            </a>
+            <a href="main_2.html" class="nav-item">
+                <i class="fas fa-layer-group"></i><span class="nav-label">Main 2</span>
+            </a>
+            <a href="main_3.html" class="nav-item">
+                <i class="fas fa-list-ol"></i><span class="nav-label">Main 3</span>
+            </a>
+            <a href="nic_nco.html" class="nav-item">
+                <i class="fas fa-tags"></i><span class="nav-label">Codes</span>
+            </a>
+        </nav>
+    </div>
 
     <script>
+        // Internal slide navigation logic for the Dashboard only
         let current = 0;
         const slides = document.querySelectorAll('.slide');
 
         function jump(idx) {
             current = idx;
-            // Update Slides
             slides.forEach((s, i) => s.classList.toggle('active', i === idx));
-            // Update Nav Items
-            document.querySelectorAll('.nav-item').forEach((item, i) => {
-                item.classList.toggle('active', i === idx);
-            });
         }
 
-        // Keyboard support
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') jump((current + 1) % slides.length);
             if (e.key === 'ArrowLeft') jump((current - 1 + slides.length) % slides.length);
