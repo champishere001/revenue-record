@@ -1,0 +1,152 @@
+    
+    <style>
+        /* Your Authenticated Style */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #333; overflow: hidden; }
+        .presentation-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; position: relative; }
+        .slide { display: none; width: 100%; height: 100%; padding: 40px 60px; background: white; position: relative; animation: fadeIn 0.5s ease-in; }
+        .slide.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 20px 30px; margin: -40px -60px 30px -60px; border-bottom: 4px solid #f39c12; }
+        .slide-number { position: absolute; top: 20px; right: 30px; background: #f39c12; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        h1 { font-size: 2.2em; margin-bottom: 10px; font-weight: 700; }
+        h2 { font-size: 1.8em; color: #1e3c72; margin-bottom: 15px; border-left: 5px solid #f39c12; padding-left: 15px; }
+        h3 { font-size: 1.3em; color: #2a5298; margin: 15px 0 8px 0; }
+        .slide-content { flex: 1; overflow-y: auto; padding: 10px 0; }
+        ul { list-style: none; padding-left: 0; }
+        li { padding: 8px 0; padding-left: 25px; position: relative; font-size: 1em; line-height: 1.5; border-bottom: 1px solid #eee; }
+        li:before { content: "▸"; position: absolute; left: 0; color: #f39c12; font-weight: bold; }
+        .highlight-box { background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%); border-left: 5px solid #f39c12; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; font-size: 0.95em; }
+        .info-box { background: #e8f4f8; border-left: 5px solid #2a5298; padding: 15px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+        .nav-controls { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 1000; background: rgba(255,255,255,0.95); padding: 12px 25px; border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        button { background: #1e3c72; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        button:hover { background: #f39c12; transform: translateY(-2px); }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 5px; background: #f39c12; transition: width 0.3s; z-index: 1001; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="presentation-container">
+        
+        <div class="slide active">
+            <div class="slide-header">
+                <h1>1. Defining Platform Work</h1>
+            </div>
+            <div class="slide-number">1</div>
+            <div class="slide-content">
+                <h2>The Conceptual Framework</h2>
+                <p>Platform work is an arrangement where matching between workers and clients is intermediated through a digital or online platform.</p>
+                <div class="grid-2">
+                    <div class="info-box">
+                        <h3>Location-Based Services</h3>
+                        <ul>
+                            <li>On-demand work via app-based platforms.</li>
+                            <li>Requires <strong>physical presence</strong> at delivery.</li>
+                            <li>Examples: Uber/Ola, Zomato, Healthcare.</li>
+                        </ul>
+                    </div>
+                    <div class="info-box">
+                        <h3>Web-Based Freelancing</h3>
+                        <ul>
+                            <li>Remote work, digitally mediated.</li>
+                            <li>Higher-skilled professional services.</li>
+                            <li>Examples: Graphic design, Coding, Legal.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-header">
+                <h1>2. Qualifying as a Platform</h1>
+            </div>
+            <div class="slide-number">2</div>
+            <div class="slide-content">
+                <h2>Beyond Simple Listing</h2>
+                <p>The platform must <strong>actively organize</strong> key aspects of the activity:</p>
+                <ul>
+                    <li><strong>Active Matching:</strong> Significant role in connecting customer and worker (not just a directory).</li>
+                    <li><strong>Work Organization:</strong> Assigning nearest worker or delivery routes.</li>
+                    <li><strong>Exerting Control:</strong> Price setting, rules of conduct, performance monitoring (ratings), and restrictions on flexibility.</li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>Crucial Logic:</strong> If a customer contacts a provider directly using information found on a website (like a phone directory), it is <strong>NOT</strong> mediated platform work.
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-header">
+                <h1>3. Survey Screening (Blocks 5.1/5.2)</h1>
+            </div>
+            <div class="slide-number">3</div>
+            <div class="slide-content">
+                <h2>Target Groups & Screening Questions</h2>
+                <div class="info-box">
+                    <h3>Group A: Self-Employed (11, 12, 21)</h3>
+                    <p><strong>Col (15) Block 5.1 / Col (14) Block 5.2:</strong> "Provided goods/services by accessing them through a digital platform?"</p>
+                </div>
+                <div class="info-box">
+                    <h3>Group B: Employees/Casual (31, 51)</h3>
+                    <p><strong>Col (16) Block 5.1 / Col (15) Block 5.2:</strong> "Provided goods/services while working for a digital platform?"</p>
+                </div>
+                <h3>The Major Mode Test (Col 17/16)</h3>
+                <ul>
+                    <li>Enter <strong>Code 1 (Yes)</strong> if platform work was the <strong>majority mode</strong> (majority of time) during the reference period.</li>
+                    <li>Otherwise, enter Code 2.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-header">
+                <h1>4. Practical Case Studies</h1>
+            </div>
+            <div class="slide-number">4</div>
+            <div class="slide-content">
+                <h2>Classification Logic</h2>
+                <ul>
+                    <li><strong>Status 31 (Regular Employee):</strong> Code as platform worker only if the employer-employee relationship is <strong>difficult to justify</strong> in the traditional sense.</li>
+                    <li><strong>Casual Wage Labour (Status 51):</strong> If an app-driver hires someone else on daily wages to drive their cab (due to sickness etc.), the hired person is a <strong>platform casual worker</strong>.</li>
+                    <li><strong>The "Shop" Rule:</strong> A shopkeeper selling via an app is a platform worker, but their <strong>physical shop employees</strong> are not.</li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>NIC Exclusion:</strong> Platform work does not apply to Industry Section <strong>B (Mining and Quarrying)</strong>.
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav-controls">
+        <button id="prevBtn" onclick="navigate(-1)" disabled>Previous</button>
+        <span id="slideCounter" style="font-weight:bold; color:#1e3c72; align-self:center;">1 / 4</span>
+        <button id="nextBtn" onclick="navigate(1)">Next</button>
+    </div>
+
+    <script>
+        let current = 0;
+        const slides = document.querySelectorAll('.slide');
+        const bar = document.getElementById('progressBar');
+        const counter = document.getElementById('slideCounter');
+
+        function navigate(dir) {
+            slides[current].classList.remove('active');
+            current += dir;
+            slides[current].classList.add('active');
+            
+            document.getElementById('prevBtn').disabled = current === 0;
+            document.getElementById('nextBtn').disabled = current === slides.length - 1;
+            
+            bar.style.width = ((current + 1) / slides.length * 100) + '%';
+            counter.innerText = `${current + 1} / ${slides.length}`;
+        }
+        bar.style.width = (1 / slides.length * 100) + '%';
+    </script>
